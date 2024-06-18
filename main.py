@@ -1,130 +1,186 @@
-import time
+from readchar import readkey, key
 import os
+import time
+import random
+import math
 import sys
 
-Black = "\033[1;30m"
-Red = "\033[1;31m"
-Green = "\033[1;32m"
-Yellow = "\033[1;33m"
-Blue = "\033[1;34m"
-Purple = "\033[1;35m"
-Cyan = "\033[1;36m"
-White = "\033[1;37m"
-DarkRed = "\033[0;31m"
+dp = 0
 
-selectedClass = False
-damage = 2
-HP = 10
-MaxHP = 10
-Defense = 20
-Dexterity = 0
-ActualDefense = 0
+ac = 10
 
-EnemyHP = 10.0
-EnemyMaxHP = 10.0
-EnemyDamage = 1
+italic = '\x1B[3m'
+darkred = '\033[38;2;100;1;1m'
+red = '\033[38;2;255;0;0m'
+orange = '\033[38;2;255;90;0m'
+gold = '\033[38;2;230;190;0m'
+silver = '\033[38;2;221;221;221m'
+copper = '\033[38;2;170;44;0m'
+paleyellow = '\033[38;2;255;255;215m'
+yellow = '\033[38;2;255;255;0m'
+green = '\033[38;2;00;135;00m'
+lime = '\033[38;2;00;255;00m'
+darkgrey = '\033[38;2;100;100;100m'
+turquoise = '\033[38;2;0;255;255m'
+teal = '\033[38;2;0;170;170m'
+blue = '\033[38;2;0;0;221m'
+purple = '\033[38;2;140;0;240m'
+white = '\033[38;2;255;255;255m'
+normal = '\033[1m'
+clearf = '\033[0m'
+platinum = '\033[38;2;205;192;255m'
 
-damageMult = 0
-HPMult = 0
-DefenseMult = 0
-DexterityMult = 0
+classcolours = [red, silver, blue, gold, lime, paleyellow, darkred, green]
 
-while True:
-    while not selectedClass:
+classes = ["warrior", "rogue", "mage", "cleric", "druid", "monk", "berserker", "ranger"]
+classdescriptions = [
+    "'Strike strong, defend stronger.' Warriors are masterful at using melee weapons paired with shields to both defend and attack. They excel as all-rounders with a balanced approach to offense and defense.", "'Attack swiftly, and use your knife skills to your advantage.' Rogues excel at debilitating their opponents with bleed effects while dealing high damage with knives. They are swift and adept at damage over time.", "'Feel the mana surging through you.' Mages are adept arcanists, harnessing all forms of magic - from arcane, to holy, to natural. They excel in area-of-effect and burst damage.", "'Let those who defy you feel the wrath of the divine.' Clerics are powerful mages who call upon divine might. They excel as healers and light mages, and are also proficient with warhammers. They are versatile in healing, area-of-effect, and damage-dealing.", "'Face nature with open arms and your foes will face it too.' Druids harness the power of nature - summoning storms, controlling plants, and transforming into beasts. They are bulky units with strong DPS and area-of-effect burst capabilities.", "'Land blow after blow, burdened by nothing in your fists.' Monks rely on their fists, honed through years of training, to rapidly strike their foes. They are swift attackers, specializing in double strike DPS.", "'Let your primal fury within guide your blade.' Berserkers channel their fury in battle, honing their combat skills while becoming more vulnerable. They excel in dealing insane DPS and can function as bulky tanks.", "'Your enemies lie helpless before they even see you.' Rangers are experts with the bow and crossbow, able to snipe enemies from a distance, often before being detected. They excel in ranged combat and are proficient in single-strike and continuous DPS."]
+
+styles = ["swift", "strong", "magic", "tough"]
+
+actions = ["Attack", "Defend", "Run"]
+
+inventory = []
+actions = []
+spells = []
+
+def chooseclass():
+    global classes, classdescriptions, selectedclass, eqweapon, eqoffhand, eqhelm, maxhp, atkbonus, hp, magicbonus, throwingknife, xp, lvl, actions, spells, inventory
+    currentclass = 0
+    os.system("clear")
+    print("Which class would like to select?")
+    time.sleep(2)
+    os.system("clear")
+    selectedclass = ""
+    while selectedclass == "":
         os.system("clear")
-        playerClass = input(f"{White}--- Select Class (Select Class to View Stats) ---\n\n{Green}[{Red}1{Green}] Barbarian\n{Green}[{Red}2{Green}] Sorcerer\n{Green}[{Red}3{Green}] Archer\n{Green}[{Red}4{Green}] Goblin\n\nSelect Number: ")
-        if playerClass != "1" and playerClass != "2" and playerClass != "3" and playerClass != "4":
-            os.system("clear")
-            print(f"{DarkRed}Invalid Input. Try Again.")
-            time.sleep(2)
-            os.system("clear")
-        elif playerClass == "1":
-            os.system("clear")
-            playerClass = input(f"{White}--- Viewing Barbarian Class ---\n\n{Green}+35% Damage\n+20% HP\n+20% Defense\n-30% Dexterity\n\n{Green}[{Red}1{Green}] Select\n{Green}[{Red}2{Green}] Back\n\nSelect Number: ")
-            if playerClass == "1":
-                playerClass = "Barbarian"
-                selectedClass = True
-                damageMult = 1.35
-                HPMult = 1.2
-                DefenseMult = 1.2
-                DexterityMult = 0.7
+        print(clearf + classcolours[currentclass] + normal + "["+classes[currentclass].capitalize()+ "]")
+        print(clearf + italic + classdescriptions[currentclass])
+        print(clearf + normal + "<"+" "*(len(classes[currentclass]))+">")
+        print("[ENTER] to select your class.")
+        keyInput = readkey()
+        if keyInput == key.LEFT:
+            time.sleep(0.1)
+            if currentclass > 0:
+                currentclass -= 1
             else:
-                pass
-        elif playerClass == "2":
-            os.system("clear")
-            playerClass = input(f"{White}--- Viewing Sorcerer Class ---\n\n{Green}+60% Damage\n-20% HP\n-20% Defense\n-10% Dexterity\n\n{Green}[{Red}1{Green}] Select\n{Green}[{Red}2{Green}] Back\n\nSelect Number: ")
-            if playerClass == "1":
-                playerClass = "Sorcerer"
-                selectedClass = True
-                damageMult = 1.6
-                HPMult = 0.8
-                DefenseMult = 0.8
-                DexterityMult = 0.9
+                currentclass = 7
+        if keyInput == key.RIGHT:
+            time.sleep(0.1)
+            if currentclass < 7:
+                currentclass += 1
             else:
-                pass
-        elif playerClass == "3":
-            os.system("clear")
-            playerClass = input(f"{White}--- Viewing Archer Class ---\n\n{Green}+100% Damage\n-35% HP\n-35% Defense\n-20% Dexterity\n\n{Green}[{Red}1{Green}] Select\n{Green}[{Red}2{Green}] Back\n\nSelect Number: ")
-            if playerClass == "1":
-                playerClass = "Archer"
-                selectedClass = True
-                damageMult = 2.0
-                HPMult = 0.65
-                DefenseMult = 0.65
-                DexterityMult = 0.8
-            else:
-                pass
-        elif playerClass == "4":
-            os.system("clear")
-            playerClass = input(f"{White}--- Viewing Goblin Class ---\n\n{Green}-15% Damage\n+25% HP\n+25% Defense\n+30% Dexterity\n\n{Green}[{Red}1{Green}] Select\n{Green}[{Red}2{Green}] Back\n\nSelect Number: ")
-            if playerClass == "1":
-                playerClass = "Goblin"
-                selectedClass = True
-                damageMult = 0.85
-                HPMult = 1.25
-                DefenseMult = 1.25
-                DexterityMult = 1.3
-            else:
-                pass
+                currentclass = 0
+        if keyInput == key.ENTER:
+            time.sleep(1)
+            selectedclass = classes[currentclass]
+    if selectedclass in classes:
+        if selectedclass == "warrior" or selectedclass == "Warrior":
+            selectedclass = "warrior"
+            maxhp = 10
+            atkbonus = 1
+            eqweapon = "bronze sword"
+            eqoffhand = "wooden shield"
+        elif selectedclass == "druid" or selectedclass == "Druid":
+            selectedclass = "druid"
+            maxhp = 8
+            atkbonus = 0
+            eqweapon = "basic staff"
+            actions.append("magic")
+            spells.append("thorn lash")
+            spells.append("wild shape")
+        elif selectedclass == "cleric" or selectedclass == "Cleric":
+            selectedclass = "cleric"
+            maxhp = 8
+            atkbonus = 0
+            eqweapon = "basic staff"
+            inventory.append("bronze warhammer")
+            inventory.append("holy charm")
+            actions.append("magic")
+            spells.append("heal I")
+            spells.append("purge")
+        elif selectedclass == "monk" or selectedclass == "Monk":
+            selectedclass = "monk"
+            maxhp = 8
+            atkbonus = 1
+        elif selectedclass == "rogue" or selectedclass == "Rogue":
+            selectedclass = "rogue"
+            maxhp = 8
+            atkbonus = 1
+            eqweapon = "bronze dagger"
+            actions.append("knife throw")
+            throwingknife = 20
+            locationactions.append("throwing knifes")
+        elif selectedclass == "berserker" or selectedclass == "Berserker":
+            selectedclass = "berserker"
+            maxhp = 12
+            atkbonus = 1
+            eqweapon = "bronze sword"
+            actions.append("rage")
+        elif selectedclass == "ranger":
+            selectedclass = "ranger"
+            maxhp = 9
+            atkbonus = 1
+            eqweapon = "oaken longbow"
+        elif selectedclass == "mage" or selectedclass == "Mage":
+            selectedclass = "mage"
+            maxhp = 6
+            atkbonus = 0
+            eqweapon = "basic staff"
+            actions.append("magic")
+            spells.append("magic missile")
+        print("Cool! You are now a " + selectedclass + ".")
+        print("")
+        hp = maxhp
+        lvl = 1
+        xp = 0
 
-    os.system("clear")
-    print(f"{White}Welcome to the game {Cyan}Celestial Chronicles{White}.")
-    time.sleep(2.6)
-    os.system("clear")
-    print(f"{White}Just to be clear, dying will result in a {DarkRed}Permanent Loss of everything.")
-    time.sleep(4)
-    os.system("clear")
-    print(f"{White}Proceed with caution. I wish you the best of luck.")
-    time.sleep(2.6)
-    os.system("clear")
-    print(f"{White}Let's Initiate the tutorial now.")
-    time.sleep(2.6)
-    os.system("clear")
-    MaxHP = MaxHP * HPMult
-    HP = MaxHP
-    damage = damage * damageMult
-    while EnemyHP > 0:
-        os.system("clear")
-        ActualDefense = 0
-        attackOption = input(f"{Green} You: {HP}/{MaxHP} - {damage} DMG\n{DarkRed}   VS\n{Red} Enemy: {EnemyHP}/{EnemyMaxHP} - {EnemyDamage} DMG\n\n{Green}[{Red}1{Green}] Attack\n{Green}[{Red}2{Green}] Defend\n\nSelect Number: ")
-        if attackOption == "1":
-            EnemyHP -= damage
-            print(f"{Green}Attacked the monster for {damage} damage!")
-            time.sleep(2)
-        elif attackOption == "2":
-            ActualDefense = Defense * DefenseMult
-            print(f"{Green}Defended ourselves! the next attack will do {((1 - (ActualDefense / 100) * 100) * -1)}% less damage!")
-            time.sleep(2)
-        print(f"{Green}The monster attacked you for {EnemyDamage * (1 - (ActualDefense / 100))} damage!")
-        HP -= EnemyDamage * (1 - (ActualDefense / 100))
-        if HP < 0:
-            print(f"{DarkRed} You Died. Your entire run is over!")
-            sys.exit()
+def choosestyle():
+    global style, atkbonus, magicbonus, ac, maxhp, hp, styleb, styles
+    print("Next, which style would you like to play?")
+    print("["+turquoise+"Swift,"+ red +" strong,"+purple+" magic, "+ white + "or"+green + " tough"+ white + "?]")
+    styleb = input("Style: " + normal).lower()
+    if stylep in styles:
+        if stylep == "swift":
+            style = "agile"
+            ac = ac + 1
+        elif stylep == "strong":
+            style = "strong"
+            atkbonus = atkbonus + 1
+        elif stylep == "magic":
+            style = "magical"
+            magicbonus = magicbonus + 1
+        elif stylep == "tough":
+            style = "tough"
+            maxhp = maxhp + 1
+            hp = hp + 1
+        print("Nice! You are a " + style + " person.")
+        print("")
+    else:
+        print("Just saying, that's not a style that you can have. Maybe it will come soon!")
+        print("")
         time.sleep(2)
-    os.system("clear")
-    print("You killed the enemy! Good job completing the tutorial!")
-    time.sleep(5)
+        os.system("clear")
+        choosestyle()
 
-    os.system("clear")
-    print("make a menu system next")
-    menuOption = input(f"{White}--- Main Menu ---\n\n{Green}[{Red}1{Green}] Explore for enemies\n{Green}[{Red}2{Green}] Enter the shop\n{Green}[{Red}3{Green}] Coming Soon!\n{Green}[{Red}4{Green}] Coming Soon!\n\nSelect Number: ")
+def fight():
+    pass # do this soon!
+
+def start():
+    global enemies, dp
+    dp = 1
+    print("Welcome to Celestial Chronicles!")
+    time.sleep(2)
+    print("First of all, we need a few quick things to start building your character.")
+    time.sleep(2)
+    chooseclass()
+    time.sleep(1)
+    choosestyle()
+    time.sleep(1)
+    print("[ENTER] to continue.")
+    wait = input("")
+    print("Next, let's test your fighting skills on a goblin to get you used to this game.")
+    time.sleep(1)
+    enemies.append("goblin")
+    fight()
+    time.sleep(2)
